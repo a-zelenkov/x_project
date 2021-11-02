@@ -51,6 +51,7 @@ def main():
             if len(bytes_data) > 0:
                 data = json.loads(bytes_data.decode('utf-8'))
         except:
+            pass
         print(data)
         x_ang,y_ang,z_ang = data
         model_to_display = model_info.dot([[1,              0,               0],

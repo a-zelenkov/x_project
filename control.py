@@ -2,13 +2,12 @@ import keyboard
 import serial
 import json
 import time
-import threading
 
 ser = serial.Serial('COM2', 9600)
 x_ang = y_ang = z_ang = 0
 
 while True:
-    time.sleep(0.1)
+    time.sleep(0.2)
     if keyboard.is_pressed('w'):
         x_ang += 0.1
     if keyboard.is_pressed('s'):
