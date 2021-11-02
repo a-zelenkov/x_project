@@ -22,6 +22,11 @@ import numpy as np
 from model_parser import getModel
 import numpy as np
 
+import json
+import serial
+
+ser = serial.Serial('COM3', 9600, timeout=1)
+
 model_info = getModel('test.ply')
 
 
@@ -42,9 +47,14 @@ def main():
     renderWindow.SetWindowName('Model')
 
     while True:
-        x_ang=0
-        y_ang=0
-        z_ang=0
+        data=[0,0,0]
+        try:
+            bytes_data = ser.readline()
+            if len(bytes_data) > 0:
+                data = json.loads(bytes_data.decode('utf-8'))
+        except:
+            pass
+        x_ang,y_ang,z_ang = data
         model_to_display = model_info.dot([[1,              0,               0],
                                            [0,  np.cos(x_ang),  -np.sin(x_ang)],
                                            [0,  np.sin(x_ang),   np.cos(x_ang)]]).dot([[ np.cos(y_ang),  0,  np.sin(y_ang)],

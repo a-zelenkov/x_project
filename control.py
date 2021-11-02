@@ -1,25 +1,37 @@
 import keyboard
+import serial
+import json
+import time
+import threading
 
-data = {
-    'x_ang': 0,
-    'y_ang': 0,
-    'z_ang': 0
-}
+ser = serial.Serial('COM2', 9600, timeout=1)
+
+data = []
+
+def readKeys():
+    global data
+    x_ang = y_ang = z_ang = 0
+    while True:
+        if keyboard.is_pressed('w'):
+            x_ang += 0.1
+        if keyboard.is_pressed('s'):
+            x_ang -= 0.1
+
+        if keyboard.is_pressed('d'):
+            y_ang -= 0.1
+        if keyboard.is_pressed('a'):
+            y_ang += 0.1
+
+        if keyboard.is_pressed('z'):
+            z_ang -= 0.1
+        if keyboard.is_pressed('x'):
+            z_ang += 0.1
+
+        data = [x_ang,y_ang,z_ang]
+
+threading.Thread( target=readKeys ).start()
 
 while True:
-    if keyboard.is_pressed('w'):
-        data['x_ang'] += 0.1
-    if keyboard.is_pressed('s'):
-        data['x_ang'] -= 0.1
-
-    if keyboard.is_pressed('d'):
-        data['y_ang'] -= 0.1
-    if keyboard.is_pressed('a'):
-        data['y_ang'] += 0.1
-
-    if keyboard.is_pressed('z'):
-        data['z_ang'] -= 0.1
-    if keyboard.is_pressed('x'):
-        data['z_ang'] += 0.1
-
-    print(data)
+    time.sleep(1.1)
+    bytes_data = json.dumps(data).encode('utf-8')
+    ser.write(bytes_data)
