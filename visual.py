@@ -25,10 +25,8 @@ import numpy as np
 import json
 import serial
 
-ser = serial.Serial('COM3', 9600, timeout=1)
-
+ser = serial.Serial('COM3', 9600, timeout=0.1)
 model_info = getModel('test.ply')
-
 
 def main():
     colors = vtkNamedColors()
@@ -46,14 +44,14 @@ def main():
 
     renderWindow.SetWindowName('Model')
 
+    data=[0,0,0]
     while True:
-        data=[0,0,0]
         try:
             bytes_data = ser.readline()
             if len(bytes_data) > 0:
                 data = json.loads(bytes_data.decode('utf-8'))
         except:
-            pass
+        print(data)
         x_ang,y_ang,z_ang = data
         model_to_display = model_info.dot([[1,              0,               0],
                                            [0,  np.cos(x_ang),  -np.sin(x_ang)],
