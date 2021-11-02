@@ -17,50 +17,66 @@ from vtkmodules.vtkRenderingCore import (
 )
 
 from model_parser import getModel
+import numpy as np
+
+from model_parser import getModel
+import numpy as np
+
+model_info = getModel('test.ply')
+
 
 def main():
-    model = getModel('test.ply')
-
     colors = vtkNamedColors()
-    points = vtkPoints()
 
-    for point in model:
-        points.InsertNextPoint(point)
-
-    polydata = vtkPolyData()
-    polydata.SetPoints(points)
-
-    glyphFilter = vtkVertexGlyphFilter()
-    glyphFilter.SetInputData(polydata)
-    glyphFilter.Update()
-
-    mapper = vtkPolyDataMapper()
-    mapper.SetInputConnection(glyphFilter.GetOutputPort())
-    mapper.Update()
-
-    actor = vtkActor()
-    actor.SetMapper(mapper)
-    actor.GetProperty().SetColor(colors.GetColor3d('Gold'))
-    actor.GetProperty().SetPointSize(8)
-
-    # Create a renderer, render window, and interactor
     renderer = vtkRenderer()
     renderWindow = vtkRenderWindow()
     renderWindow.AddRenderer(renderer)
     renderWindowInteractor = vtkRenderWindowInteractor()
     renderWindowInteractor.SetRenderWindow(renderWindow)
 
-    # Add the actor to the scene
+    actor = vtkActor()
     renderer.AddActor(actor)
-    renderWindow.SetSize(300, 300)
+    renderWindow.SetSize(600, 600)
     renderer.SetBackground(colors.GetColor3d('DarkSlateGray'))
 
     renderWindow.SetWindowName('Model')
 
-    # Render and interact
-    renderWindow.Render()
-    renderWindowInteractor.Start()
+    while True:
+        x_ang=0
+        y_ang=0
+        z_ang=0
+        model_to_display = model_info.dot([[1,              0,               0],
+                                           [0,  np.cos(x_ang),  -np.sin(x_ang)],
+                                           [0,  np.sin(x_ang),   np.cos(x_ang)]]).dot([[ np.cos(y_ang),  0,  np.sin(y_ang)],
+                                                                                       [             0,  1,              0],
+                                                                                       [-np.sin(y_ang),  0,  np.cos(y_ang)]]).dot([[ np.cos(z_ang),  -np.sin(z_ang),  0],
+                                                                                                                                   [ np.sin(z_ang),   np.cos(z_ang),  0],
+                                                                                                                                   [             0,               0,  1]])
 
+
+        points = vtkPoints()
+
+        for point in model_to_display:
+            points.InsertNextPoint(point)
+
+        polydata = vtkPolyData()
+        polydata.SetPoints(points)
+
+        glyphFilter = vtkVertexGlyphFilter()
+        glyphFilter.SetInputData(polydata)
+        glyphFilter.Update()
+
+        mapper = vtkPolyDataMapper()
+        mapper.SetInputConnection(glyphFilter.GetOutputPort())
+        mapper.Update()
+
+        actor.SetMapper(mapper)
+        actor.GetProperty().SetColor(colors.GetColor3d('Gold'))
+        actor.GetProperty().SetPointSize(10)
+
+        renderWindow.Render()
+
+        renderWindowInteractor.ProcessEvents()
 
 if __name__ == '__main__':
     main()
